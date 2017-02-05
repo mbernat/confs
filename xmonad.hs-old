@@ -1,0 +1,58 @@
+import XMonad
+import XMonad.Hooks.SetWMName
+import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.ManageDocks
+import XMonad.Layout.NoBorders
+import XMonad.Layout.PerWorkspace
+import XMonad.Util.EZConfig(additionalKeys)
+import XMonad.Util.Run(spawnPipe, hPutStrLn)
+import XMonad.Layout.PerWorkspace
+import Data.List
+import qualified XMonad.StackSet as W
+
+bracket :: String -> String
+bracket s = "[" ++ s ++ "]"
+
+encase :: String -> String
+encase s = " " ++ s ++ " "
+
+showLayout :: String -> String
+showLayout "Tall" = "[]="
+showLayout "Mirror Tall" = "TTT"
+showLayout "Full" = "[]"
+
+myManageHook = composeAll . concat $ [
+    [className =? "Firefox" --> doShift "2"],
+    [className =? "Pidgin" --> doShift "3"],
+    [className =? "Skype" --> doShift "3"],
+    [className =? "Transmission" --> doShift "7"],
+    [fmap (c `isInfixOf`) title --> doShift "4" | c <- kgsTitles]
+  ] where kgsTitles = ["CGoban", "KGS"]
+
+main = do
+  xmobar <- spawnPipe "xmobar"-- /home/marek/.xmobarrc"
+  xmonad $ defaultConfig {
+            modMask = mod4Mask,
+            terminal = "urxvt",
+            startupHook = setWMName "LG3D",
+            layoutHook = onWorkspace "7" (noBorders Full) $ smartBorders $ avoidStruts $ layoutHook defaultConfig,
+            manageHook = myManageHook <+> manageDocks <+> manageHook defaultConfig,
+            logHook = dynamicLogWithPP $ xmobarPP {
+              ppCurrent = bracket . xmobarColor "green" "",
+              ppHidden = xmobarColor "grey" "" . encase,
+              ppUrgent = xmobarColor "black" "red" . encase,
+              ppSep = " ",
+              ppTitle = xmobarColor "lightgrey" "" . shorten 60,
+              ppLayout = xmobarColor "orange" "lightblack" . showLayout,
+              ppOutput = hPutStrLn xmobar
+            }
+          } `additionalKeys` ([
+            ((mod4Mask, xK_a), spawn "amixer -c 0 set Master playback 6%+"),
+            ((mod4Mask, xK_o), spawn "amixer -c 0 set Master playback 6%-"),
+            ((mod4Mask, xK_p), spawn "dmenu_run")
+          ]
+          ++
+          [((m .|. mod4Mask, key), screenWorkspace sc >>= flip whenJust (windows . f))
+                  | (key, sc) <- zip [xK_d, xK_b] [0..]
+                          , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]])
+

@@ -1,0 +1,11 @@
+URxvt*font: -*-terminus-medium-*-*-*-14-*-*-*-*-*-iso8859-2
+URxvt*scrollBar: false
+URxvt*foreground: grey80
+URxvt*background: black
+URxvt*cursorColor: white
+URxvt*toolBar: false
+URxvt*eightBitInput: false
+URxvt*scrollTtyOutput: false
+URxvt*geometry: 150x60
+
+Emacs*font: -*-terminus-medium-*-*-*-14-*-*-*-*-*-iso8859-2
