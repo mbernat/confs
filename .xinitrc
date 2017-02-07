@@ -18,6 +18,7 @@ firefox &
 xmobar ~/confs/xmobar.config &
 parcellite &
 stalonetray -c ~/confs/stalonetrayrc &
+/usr/lib/notify-osd/notify-osd &
 
 pulseaudio --start
 pactl load-module module-equalizer-sink
